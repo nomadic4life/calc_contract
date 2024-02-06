@@ -1,0 +1,7 @@
+{
+  "name": "calculator_contract",
+  "version": "1.0.0",
+  "description": "solana contract program",
+  "main": "index.js",
+  "license": "MIT"
+}
