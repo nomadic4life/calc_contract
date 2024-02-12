@@ -1,35 +1,22 @@
+pub mod instruction;
+pub mod processor;
+pub mod state;
 
-use borsh::{BorshDeserialize, BorshSerialize};
+use crate::processor::Processor;
+
 use solana_program::{
-    account_info::AccountInfo,
-    entrypoint,
-    entrypoint::ProgramResult,
-    pubkey::Pubkey,
-    msg,
+    account_info::AccountInfo, entrypoint, entrypoint::ProgramResult, pubkey::Pubkey,
 };
 
 entrypoint!(process_instruction);
 
 pub fn process_instruction(
-    program_id:         &Pubkey,
-    accounts:           &[AccountInfo],
-    instruction_data:   &[u8],
+    program_id: &Pubkey,
+    accounts: &[AccountInfo],
+    instruction_data: &[u8],
 ) -> ProgramResult {
-
-    msg!("calc_contract program.");
-
-    let account_iter = &mut accounts.iter();
-
-
-
-    return Ok(());
+    return Processor::process(program_id, accounts, instruction_data);
 }
-
-#[derive(BorshSerialize, BorshDeserialize, Debug)]
-pub struct OutputAccount {
-    pub output u64,
-}
-
 
 // Create a Solana contract with a boilerplate hello world code that can be found here.
 // Instead of processing just one instruction, create functions to calculate the sum and difference of two numbers.
