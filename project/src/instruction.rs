@@ -17,7 +17,7 @@ pub enum CalcInstruction {
     Mod { operand: u64 },
 }
 
-#[Derive(BorshDeserialize)]
+#[derive(BorshDeserialize)]
 pub struct Payload {
     operand: u64,
 }
@@ -26,7 +26,7 @@ impl CalcInstruction {
     pub fn unpack(input: &[u8]) -> Result<Self, ProgramError> {
         let (&tag, rest) = input
             .split_first()
-            .ok_or(ProgramError.InvalidInstructionData)?;
+            .ok_or(ProgramError::InvalidInstructionData)?;
 
         let payload = Payload::try_from_slice(rest).unwrap();
 
