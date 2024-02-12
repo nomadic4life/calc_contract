@@ -4,22 +4,22 @@ use solana_program::program_error::ProgramError;
 pub enum CalcInstruction {
     InitState,
 
-    LoadOperand { operand: u64 },
+    LoadOperand { operand: i64 },
 
-    Add { operand: u64 },
+    Add { operand: i64 },
 
-    Sub { operand: u64 },
+    Sub { operand: i64 },
 
-    Mul { operand: u64 },
+    Mul { operand: i64 },
 
-    Div { operand: u64 },
+    Div { operand: i64 },
 
-    Mod { operand: u64 },
+    Mod { operand: i64 },
 }
 
 #[derive(BorshDeserialize)]
 pub struct Payload {
-    operand: u64,
+    operand: i64,
 }
 
 impl CalcInstruction {
