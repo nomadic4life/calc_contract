@@ -1,5 +1,4 @@
 use borsh::BorshDeserialize;
-use solana_program::msg;
 use solana_program::program_error::ProgramError;
 
 pub enum CalcInstruction {
@@ -29,24 +28,7 @@ impl CalcInstruction {
             .split_first()
             .ok_or(ProgramError::InvalidInstructionData)?;
 
-        msg!("before payload");
-        msg!("len: {}, {}", rest.len(), input.len());
-        msg!(
-            "byte: {}, {}, {}, {}, {}, {}, {}, {}, {}",
-            input[0],
-            input[1],
-            input[2],
-            input[3],
-            input[4],
-            input[5],
-            input[6],
-            input[7],
-            input[8]
-        );
-
         let payload = Payload::try_from_slice(rest).unwrap();
-
-        msg!("serialized payload: {}", payload.operand);
 
         Ok(match tag {
             0 => Self::InitState,

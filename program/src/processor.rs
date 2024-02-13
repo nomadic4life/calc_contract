@@ -82,12 +82,10 @@ impl Processor {
 
         let seed = "output_buffer";
 
-        let (pda, bump) = Pubkey::find_program_address(
+        let (_, bump) = Pubkey::find_program_address(
             &[user_account.key.as_ref(), &seed.as_bytes().as_ref()],
             program_id,
         );
-
-        msg!("{} === {} ??", pda, user_calc_state_account.key);
 
         let rent = Rent::get()?.minimum_balance(8);
 
@@ -112,7 +110,7 @@ impl Processor {
         )?;
 
         let mut output_account: OutputAccount =
-            OutputAccount::try_from_slice(&user_calc_state_account.data.borrow())?;
+            OutputAccount::try_from_slice(&mut user_calc_state_account.data.borrow())?;
 
         output_account.output = 0;
 
