@@ -116,6 +116,11 @@ const load = async (conn) => {
             return Keypair.fromSecretKey(Uint8Array.from(JSON.parse(data)))
         })
 
+    conn.onLogs(keypair.publicKey, (logs, ctx) => {
+        console.log({ logs, ctx })
+        process.exit(0)
+    }, "confirmed")
+
     return [program.publicKey, keypair]
 }
 
@@ -149,6 +154,24 @@ const instructionBuffer = (instr) => {
     const length = variant.length + operand.length
 
     return Buffer.concat([variant, operand], length)
+}
+
+const getTransaction = async (conn, sig) => {
+
+    let transaction = await conn.getParsedTransaction(sig, { maxSupportedTransactionVersion: 0 });
+
+    const date = new Date(transaction.blockTime * 1000);
+    const transactionInstructions = transaction.transaction.message.instructions;
+
+    console.log(("-").repeat(20));
+    console.log(`Signature: ${transaction.signature}`);
+    console.log(`Time: ${date}`);
+    console.log(`Status: ${transaction.confirmationStatus}`);
+    transactionInstructions.forEach((instruction, n) => {
+        // console.log(`---Instructions ${n + 1}: ${instruction.programId.toString()}`);
+        console.log(instruction)
+    })
+    console.log(("-").repeat(20));
 }
 
 const execute = async () => {
@@ -246,7 +269,10 @@ const execute = async () => {
         [payer]
     );
 
-    console.log("\n", `TX: ${txHash}`)
+    console.log()
+
+    conn.confirmTransaction({ ...blockhashInfo, signature: txHash }, { commitment: "confirmed" })
+
 }
 
 execute()
