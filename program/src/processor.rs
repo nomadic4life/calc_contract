@@ -75,24 +75,28 @@ impl Processor {
         let user_calc_state_account = next_account_info(account_iter)?;
         let system_account = next_account_info(account_iter)?;
 
+        msg!("is write: {}", user_calc_state_account.is_writable);
+
         assert!(user_account.is_signer);
         assert!(user_calc_state_account.is_writable);
 
         let seed = "output_buffer";
 
-        let (_, bump) = Pubkey::find_program_address(
+        let (pda, bump) = Pubkey::find_program_address(
             &[user_account.key.as_ref(), &seed.as_bytes().as_ref()],
             program_id,
         );
 
-        let rent = Rent::get()?.minimum_balance(4);
+        msg!("{} === {} ??", pda, user_calc_state_account.key);
+
+        let rent = Rent::get()?.minimum_balance(8);
 
         invoke_signed(
             &system_instruction::create_account(
                 user_account.key,
                 user_calc_state_account.key,
                 rent,
-                4,
+                8,
                 program_id,
             ),
             &[
@@ -108,11 +112,13 @@ impl Processor {
         )?;
 
         let mut output_account: OutputAccount =
-            OutputAccount::try_from_slice(&mut user_calc_state_account.data.borrow())?;
+            OutputAccount::try_from_slice(&user_calc_state_account.data.borrow())?;
 
         output_account.output = 0;
 
         msg!("output account initated, value set to 0");
+
+        output_account.serialize(&mut &mut user_calc_state_account.data.borrow_mut()[..])?;
 
         return Ok(());
     }

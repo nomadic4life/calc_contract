@@ -3,5 +3,10 @@
   "version": "1.0.0",
   "description": "solana contract program",
   "main": "index.js",
-  "license": "MIT"
+  "type": "module",
+  "license": "MIT",
+  "dependencies": {
+    "@coral-xyz/borsh": "^0.29.0",
+    "@solana/web3.js": "^1.90.0"
+  }
 }
