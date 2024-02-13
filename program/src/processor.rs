@@ -31,7 +31,7 @@ impl Processor {
             }
 
             CalcInstruction::LoadOperand { operand } => {
-                msg!("Clear and load data into state buffer: {}", operand);
+                msg!("Clear and load data into output buffer: {}", operand);
 
                 return Self::process_load_operand(accounts, operand, program_id);
             }
@@ -74,8 +74,6 @@ impl Processor {
         let user_account = next_account_info(account_iter)?;
         let user_calc_state_account = next_account_info(account_iter)?;
         let system_account = next_account_info(account_iter)?;
-
-        msg!("is write: {}", user_calc_state_account.is_writable);
 
         assert!(user_account.is_signer);
         assert!(user_calc_state_account.is_writable);

@@ -31,6 +31,7 @@ const DIV = 5;
 const MOD = 6;
 
 const parseVariant = (input) => {
+
     switch (input) {
         case 'INIT':
             return INIT
@@ -128,24 +129,26 @@ const state = (program, keypair) => {
     return key
 }
 
+const numToByteArray = (num) => {
+
+    let byteArray = new Uint8Array(8);
+
+    for (let index = 0; index < byteArray.length; index++) {
+        let byte = Number(num & 255n);
+        byteArray[index] = byte;
+        num = (num - BigInt(byte)) / 256n;
+    }
+
+    return byteArray;
+};
+
 const instructionBuffer = (instr) => {
 
-    const inputSchema = borsh.struct([
-        borsh.u8('variant'),
-        borsh.f64('operand'),
-    ])
+    const variant = Uint8Array.from([instr.variant])
+    const operand = numToByteArray(instr.operand)
+    const length = variant.length + operand.length
 
-    const buffer = Buffer.alloc(1000)
-
-    inputSchema.encode(instr, buffer)
-
-
-
-    const value = buffer.slice(0, inputSchema.getSpan(buffer))
-
-    console.log({ value })
-
-    return value
+    return Buffer.concat([variant, operand], length)
 }
 
 const execute = async () => {
@@ -186,7 +189,7 @@ const execute = async () => {
                     isWritable: false,
                 }
             ],
-            data: instructionBuffer({ variant: 0, operand: 0 }),
+            data: instructionBuffer({ variant: 0, operand: 0n }),
         }))
     }
 
@@ -205,19 +208,12 @@ const execute = async () => {
     while (true) {
 
         const variant = parseVariant(iter.next().value)
-        const operand = Number(iter.next().value)
-
-        console.log("before", { variant, operand })
+        const num = iter.next().value
+        const operand = num && BigInt(num)
 
         if (!variant) {
             break
         }
-        const data = new Uint8Array(9)
-
-        data[0] = 1
-        data[1] = 21
-
-
 
         instr.push(new TransactionInstruction({
             programId: program,
@@ -233,11 +229,8 @@ const execute = async () => {
                     isWritable: true,
                 }
             ],
-            // data: instructionBuffer({ variant, operand }),
-            data
+            data: instructionBuffer({ variant, operand }),
         }))
-
-        console.log("after", { variant, operand })
 
     }
 
@@ -256,14 +249,4 @@ const execute = async () => {
     console.log("\n", `TX: ${txHash}`)
 }
 
-
-
 execute()
-
-// const data = Uint8Array.from(23)
-const data = new Uint8Array(50)
-const bData = Buffer.alloc(50)
-
-data[30] = 255
-console.log(data)
-console.log(bData)
