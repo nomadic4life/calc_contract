@@ -20,7 +20,7 @@ const exec = util.promisify(child.exec)
 
 // CONST VALUES::
 const SEED = 'output_buffer'
-const PROGRAM_KEYPAIR_PATH = '../program/target/deploy/calc_contract-keypair.json';
+const PROGRAM_KEYPAIR_PATH = './program/target/deploy/calc_contract-keypair.json';
 
 const INIT = 0;
 const SET = 1;
@@ -92,20 +92,20 @@ const load = async (conn) => {
 
     if (process.argv.includes("--deploy")) {
 
-        await exec('solana-keygen new -o ../program/wallet/main.json --force --no-bip39-passphrase')
+        await exec('solana-keygen new -o ./program/wallet/id.json --force --no-bip39-passphrase')
             .then((e, stdout, stderr) => {
                 console.log()
                 console.log("new", stdout)
             })
 
 
-        await exec('solana airdrop 100 --keypair ../program/wallet/main.json --commitment finalized')
+        await exec('solana airdrop 100 --keypair ./program/wallet/id.json --commitment finalized')
             .then((e, stdout, stderr) => {
                 console.log()
                 console.log("airdrop", stdout)
             })
 
-        await exec('solana program deploy ../program/target/deploy/calc_contract.so --keypair ../program/wallet/main.json --commitment finalized')
+        await exec('solana program deploy ./program/target/deploy/calc_contract.so --keypair ./program/wallet/id.json --commitment finalized')
             .then((e, stdout, stderr) => {
                 console.log("program deployed")
             })
@@ -117,7 +117,13 @@ const load = async (conn) => {
         })
 
     conn.onLogs(keypair.publicKey, (logs, ctx) => {
-        console.log({ logs, ctx })
+
+        if (process.argv.includes("--logs")) {
+            console.log(logs)
+        }
+
+        console.log("\n", logs.logs[logs.logs.length - 3].slice(13), "\n\n")
+
         process.exit(0)
     }, "confirmed")
 
